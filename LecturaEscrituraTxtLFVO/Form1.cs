@@ -9,11 +9,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
 using System.Text.RegularExpressions;
+using MySql.Data.MySqlClient;
 
 namespace LecturaEscrituraTxtLFVO
 {
     public partial class Form1 : Form
     {
+        string conexionSQL = "Server=localhost; Port=3306;Database=programacionavanzada;Uid=root;Pwd=;";
+
         public Form1()
         {
             InitializeComponent();
@@ -23,6 +26,30 @@ namespace LecturaEscrituraTxtLFVO
             txbNombre.TextChanged += ValidarNombre;
             txbApellidos.TextChanged += ValidarApellidos;  // Cambié TextAlignChanged a TextChanged
             txbEstatura.TextChanged += ValidarEstatura;
+        }
+
+        private void InsertarRegistro(string nombres, string apellidos, int edad, decimal estatura, string telefono, string genero)
+        {
+            using (MySqlConnection conection = new MySqlConnection(conexionSQL))
+            {
+                conection.Open();
+
+                string insertQuery = "INSERT INFO registros(Nombre, Apellidos, Edad, Estatura, Telefono, Genero) " +
+                    "VALUES (@Nombre, @Apellidos, @Edad, @Estatura, @Telefono, @Genero)";
+
+                using (MySqlCommand command =  new MySqlCommand(insertQuery, conection))
+                {
+                    command.Parameters.AddWithValue("@Nombre", nombres);
+                    command.Parameters.AddWithValue("@Apellidos", apellidos);
+                    command.Parameters.AddWithValue("@Edad", edad);
+                    command.Parameters.AddWithValue("@Estatura", estatura);
+                    command.Parameters.AddWithValue("@Telefono", telefono);
+                    command.Parameters.AddWithValue("@Genero", genero);
+
+                    command.ExecuteNonQuery();
+                }
+                conection.Close();
+            }
         }
 
         private void btnGuardar_Click(object sender, EventArgs e)
