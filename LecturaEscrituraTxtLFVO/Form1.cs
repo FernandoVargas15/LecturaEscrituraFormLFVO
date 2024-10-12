@@ -7,7 +7,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 using System.Text.RegularExpressions;
 using MySql.Data.MySqlClient;
 
@@ -30,14 +29,14 @@ namespace LecturaEscrituraTxtLFVO
 
         private void InsertarRegistros(string nombres, string apellidos, int edad, decimal estatura, string telefono, string genero)
         {
-            using(MySqlConnection connection = new MySqlConnection(ConectarSQL))
+            using (MySqlConnection connection = new MySqlConnection(ConectarSQL))
             {
                 connection.Open();
 
-                string insertQuery = "INSERT INFO registros(Nombre, Apellidos, Edad, Estatura, Telefono, Genero) " +
+                string insertQuery = "INSERT INTO registros(Nombre, Apellidos, Edad, Estatura, Telefono, Genero) " +
                     "VALUES (@Nombre, @Apellidos, @Edad, @Estatura, @Telefono, @Genero)";
 
-                using (MySqlCommand command =  new MySqlCommand(insertQuery, connection))
+                using (MySqlCommand command = new MySqlCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Nombre", nombres);
                     command.Parameters.AddWithValue("@Apellidos", apellidos);
@@ -59,7 +58,7 @@ namespace LecturaEscrituraTxtLFVO
             string apellidos = txbApellidos.Text;
             string edad = txbEdad.Text;
             string estatura = txbEstatura.Text;
-            string Telefono = txbTelefono.Text;
+            string telefono = txbTelefono.Text;
 
             // Género
             string genero = "";
@@ -72,26 +71,14 @@ namespace LecturaEscrituraTxtLFVO
                 genero = "Mujer";
             }
 
-            // Cadena de datos
-            string datos = $"Nombres: {nombres}\r\nApellidos: {apellidos}\r\nTeléfono: {Telefono} \r\nEstatura: {estatura} cm\r\nEdad: {edad} años\r\nGénero: {genero}";
-
-            // Guardar datos en archivo de texto
-            string rutaArchivo = "C:/Users/fergu/OneDrive/Escritorio/GUARDAR_DATOS/datos.txt";
-            bool archivoExiste = File.Exists(rutaArchivo);
-
-            using (StreamWriter writer = new StreamWriter(rutaArchivo, true))
+            if (!int.TryParse(edad, out int edadInt) || !decimal.TryParse(estatura, out decimal estaturaDec))
             {
-                if (archivoExiste)
-                {
-                    writer.WriteLine(datos);
-                }
-                else
-                {
-                    writer.WriteLine(datos); // Guardar datos en archivo si no existe
-                }
+                MessageBox.Show("Por favor, ingrese valores válidos para edad y estatura.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
             }
 
-            MessageBox.Show("Datos guardados con éxito:\n\n" + datos, "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            InsertarRegistros(nombres, apellidos, edadInt, estaturaDec, telefono, genero);
+            MessageBox.Show("Datos guardados con éxito.", "Información", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
 
         private bool EsEnteroValido(string valor)
@@ -157,7 +144,6 @@ namespace LecturaEscrituraTxtLFVO
         {
             TextBox textBox = (TextBox)sender;
 
-            // Verificar si el TextBox no está vacío antes de validar
             if (!string.IsNullOrEmpty(textBox.Text) && !EsTextoValido(textBox.Text))
             {
                 MessageBox.Show("Por favor, ingrese apellidos válidos.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -169,14 +155,12 @@ namespace LecturaEscrituraTxtLFVO
         {
             TextBox textBox = (TextBox)sender;
 
-            // Solo validar si el campo no está vacío
             if (!string.IsNullOrEmpty(textBox.Text) && !EsTextoValido(textBox.Text))
             {
                 MessageBox.Show("Por favor, ingrese un nombre válido.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 textBox.Clear();
             }
         }
-
 
         private void btnCancelar_Click(object sender, EventArgs e)
         {
