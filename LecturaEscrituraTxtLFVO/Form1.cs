@@ -15,7 +15,7 @@ namespace LecturaEscrituraTxtLFVO
 {
     public partial class Form1 : Form
     {
-        string conexionSQL = "Server=localhost; Port=3306;Database=programacionavanzada;Uid=root;Pwd=;";
+        string ConectarSQL = "Server=localhost; Port=3306; Database=ProgAvanLFVO; Uid=root; Pwd=Rocket2014;";
 
         public Form1()
         {
@@ -24,20 +24,20 @@ namespace LecturaEscrituraTxtLFVO
             txbEdad.TextChanged += ValidarEdad;
             txbTelefono.Leave += ValidarTelefono;
             txbNombre.TextChanged += ValidarNombre;
-            txbApellidos.TextChanged += ValidarApellidos;  // Cambié TextAlignChanged a TextChanged
+            txbApellidos.TextChanged += ValidarApellidos;
             txbEstatura.TextChanged += ValidarEstatura;
         }
 
-        private void InsertarRegistro(string nombres, string apellidos, int edad, decimal estatura, string telefono, string genero)
+        private void InsertarRegistros(string nombres, string apellidos, int edad, decimal estatura, string telefono, string genero)
         {
-            using (MySqlConnection conection = new MySqlConnection(conexionSQL))
+            using(MySqlConnection connection = new MySqlConnection(ConectarSQL))
             {
-                conection.Open();
+                connection.Open();
 
                 string insertQuery = "INSERT INFO registros(Nombre, Apellidos, Edad, Estatura, Telefono, Genero) " +
                     "VALUES (@Nombre, @Apellidos, @Edad, @Estatura, @Telefono, @Genero)";
 
-                using (MySqlCommand command =  new MySqlCommand(insertQuery, conection))
+                using (MySqlCommand command =  new MySqlCommand(insertQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Nombre", nombres);
                     command.Parameters.AddWithValue("@Apellidos", apellidos);
@@ -48,7 +48,7 @@ namespace LecturaEscrituraTxtLFVO
 
                     command.ExecuteNonQuery();
                 }
-                conection.Close();
+                connection.Close();
             }
         }
 
@@ -114,14 +114,13 @@ namespace LecturaEscrituraTxtLFVO
 
         private bool EsTextoValido(string valor)
         {
-            return Regex.IsMatch(valor, @"^[a-zA-Z\s]+$");  // Arreglé la expresión regular
+            return Regex.IsMatch(valor, @"^[a-zA-Z\s]+$");
         }
 
         private void ValidarEdad(object sender, EventArgs e)
         {
             TextBox textBox = (TextBox)sender;
 
-            // Verificar si el TextBox no está vacío antes de validar
             if (!string.IsNullOrEmpty(textBox.Text) && !EsEnteroValido(textBox.Text))
             {
                 MessageBox.Show("Por favor, ingrese una edad válida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -133,7 +132,6 @@ namespace LecturaEscrituraTxtLFVO
         {
             TextBox textBox = (TextBox)sender;
 
-            // Verificar si el TextBox no está vacío antes de validar
             if (!string.IsNullOrEmpty(textBox.Text) && !EsDecimalValido(textBox.Text))
             {
                 MessageBox.Show("Por favor, ingrese una estatura válida.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -166,7 +164,6 @@ namespace LecturaEscrituraTxtLFVO
                 textBox.Clear();
             }
         }
-
 
         private void ValidarNombre(object sender, EventArgs e)
         {
